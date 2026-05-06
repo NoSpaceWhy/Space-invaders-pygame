@@ -1,6 +1,8 @@
 import pygame
 from random import randint, uniform
 
+from os import join
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
@@ -93,6 +95,8 @@ Clock = pygame.time.Clock()
 star_surf = pygame.image.load('images/star.png').convert_alpha()
 laser_surf = pygame.image.load('images/laser.png').convert_alpha()
 meteor_surf = pygame.image.load('images/meteor.png').convert_alpha()
+font = pygame.font.Font(join("images" , "Oxanium-Bold.ttf"), 20)
+font.render("text", True, 'Red')
 
 all_sprite = pygame.sprite.Group()
 meteor_sprites = pygame.sprite.Group()
