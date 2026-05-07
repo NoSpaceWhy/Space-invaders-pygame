@@ -99,10 +99,11 @@ class AnimatedExplosion(pygame.sprite.Sprite):
             self.kill()
 
 def collision():
-    global running
+    global running, game_over
     collison_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
     if collison_sprites:
-        running = False
+        print("game over")
+        game_over = False
 
     for laser in laser_sprites:
         collided_sprites = pygame.sprite.spritecollide(laser, meteor_sprites, True)
@@ -119,6 +120,11 @@ def display_score():
     screen.blit(text_surf, text_rect)
     pygame.draw.rect(screen, text_colour, text_rect.inflate(20, 30).move(0, -8), 5, 10)
 
+def draw_text(text, font, pos:tuple, color=(240, 240, 240)):
+    text_colour = color
+    text_surf = font.render(text, True, text_colour)
+    text_rect = text_surf.get_frect(center = pos)
+    screen.blit(text_surf, text_rect)
 
 pygame.init()
 
@@ -161,26 +167,44 @@ player = Player(all_sprite)
 meteor_event = pygame.event.custom_type()
 pygame.time.set_timer(meteor_event, 500)
 
+
+game_over = False
+game_active = True
 running = True
 while running:
     dt = Clock.tick() / 1000
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == meteor_event:
+        if event.type == meteor_event and game_active:
             x, y = randint(0, width), randint(-200 , -100)
             Meteor((all_sprite, meteor_sprites), meteor_surf, (x, y))
+        
+        # pause
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                if game_active:
+                    game_active = False
+                else:
+                    game_active = True
+        
+        if game_over and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                game_over = False
 
-    # update
-    all_sprite.update(dt)
-    collision()
+    if game_active:
+        # update
+        all_sprite.update(dt)
+        collision()
 
-    # drawings
-    screen.fill('#3a2e3f') # this should be first shown
+        # drawings
+        screen.fill('#3a2e3f') # this should be first shown
 
-    display_score()
-    all_sprite.draw(screen)
-
+        display_score()
+        all_sprite.draw(screen)
+    else:
+        draw_text("GAME PAUSED", font, (250, 200), (255, 0, 0))
+        draw_text("Press 'R' to Resume", font, (280, 300), (255, 255, 255))
 
     pygame.display.update()
 pygame.quit()
